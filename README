@@ -1,0 +1,180 @@
+﻿================================================
+	       RISC-V  Simulator
+================================================
+
+Team - Akshat Goel | Aman Bilaiya | Ujjwal Yadav | Bolu Sathwik Reddy | Rohit Tuli
+       2018CSB1067   2018CSB1069    2018CSB1127	  2018CSB	       2018CSB
+
+-------------------README-----------------------
+
+Phase 1 -- 32 bit RISC-V Assembler
+Phase 2 -- 5 Step instruction execution
+
+Table of contents
+1. Directory Structure
+2. Software description      
+3. How to execute
+4. Output
+5. Test Results
+
+DIRECTORY STRUCTURE:
+--------------------
+CS204-Project
+  |
+
+  |- include
+      |- binary_to_decimal.py
+      |- converttomachinecode1.py
+      |- R_format.py | I_format.py | SSBU_format.py | UJ_format.py
+      |- R_phase2.py | I_phase2.py | SSBU_phase2.py
+      |- globalss.py
+      |- fetch1.py
+      |- decode1.py
+      |- execute1.py
+      |- memoryaccess1.py
+      |- registerupdate1.py
+      |- error_handling.py
+
+  |- src
+      |- driver.py
+      |- assembly.txt
+      |- machinecode.txt
+
+  |- test
+      |- fibonacci.asm
+      |- factorial.asm
+      |- bubblesort.asm
+      |- Loop.asm
+      |- simple_add.asm
+      
+      
+SOFTWARE DESCRIPTION:      
+---------------------
+
+            +------------------------------------------------+
+            |                                                |
+            |   FUNCTIONAL_SIMULATOR_FOR_32bit_RISCV_ISA     |
+            |                                                |
+            +------------------------------------------------+
+
+
+  RISC-V 32bit ISA
+ +----------------+
+
+-> The assembly language supports 31 instructions
+    - Arithmetic Instructions (add, sub, mul, div, rem, addi)
+    - Logical instructions (and, or, xor, andi, ori)
+    - Shift Instructions (sll, slt, sra, srl)
+    - Data Transfer Instructions (sb, sw, sd, sh, lb, ld, lh, lw)
+    - Load Instructions (auipc, lui)
+    - Unconditional Branch Instruction (jal, jalr)
+    - Conditional Branch Instructions (beq, bne, bge, blt)
+
+-> In addition, it provide support for the assembler directives: .text, .data, .byte, .half, .word, .asciiz.
+
+-> Floating point operations and pseudo instructions are not supported.
+-> Only instuction without commas are supported .Eg:- "addi x1 x3 10" | "sw x3 0(x1)"
+
+-> We also have desktop application (GUI) for the simulator. Created using python Tkinter library.
+
+-> Along with execution of instruction in steps, simulator also provide messages
+   what it is doing in each stage as an update in all the structures that would change.
+
+-> Furthur it has a “clock” that increments once for every instruction.
+
+-> Simulator assumes that we have only 32 registers(x0,x1.....x31)
+    - Register x2 is the stack pointer.
+    - Remaining registers are the general purpose registers.
+    - Register x1 is the return address
+    - Each register is 32 bit wide.
+
+-> Each instruction is encoded into a 32 bit value as per official documentation.
+
+-> The memory is a large list of bytes. A part of it saves the 
+   instructions and the rest of it is devoted to store the data.
+     
+-> Each RISC-V instruction is be divided in 6 instruction formats:
+   R-format | I-format | S-format | SB-format | U-format | UJ-format 
+
+
+  Simulator for RISC processor
+ +----------------------------------+
+
+ -> Our Simulator is computer program written in a python3 language that simulates the 
+    working of the SimpleRISC processor that run over the 32 bit RISCV ISA.
+ -> The program takes the assembly instructions from the "assemlby.txt" file.
+ -> Then the assembly code is converted into machine code and writes it into "machinecode.txt".
+ -> Finally the 5 step insruction execution is done for each machine instruction.
+     - fetch(): Reads from the instruction according to the PC_COUNTER.
+     - decode(): Reads the instruction register, reads operand1,operand2 from
+                 register file.It also calculates the values of the immediate 
+                 operand and the branch target by unpacking the offset embedded
+                 in the instruction.
+     - execute(): Calculates the control signals based on the opcode present in
+                  the instruction. Executes the ALU operation based on the
+                  control signal calculated and updates the other signals.It 
+                   also calculates the branchPC.
+     - memory_access(): Performs two operations, either read/write the memort_array based on the control signal.
+     - write_back(): Writes the results back to register file
+
+
+How to execute
+--------------
+	$cd src
+	$python3 driver.py
+
+
+					OUTPUT:
+ +--------------------------------------------------------------------------------------+
+ |        ======================================================================        |
+ |        CYCLE ****increments once for every instruction                               |
+ |        ======================================================================        |
+ |        Instruction Fetch:                                                            |  
+ |             Read 0x******** (instruction) from * (PC_COUNTER)                        |
+ |          ---------------------------------------------------------------             |
+ |        Decode:                                                                       |
+ |             Immediate and Branch Target Calculation:                                 |
+ |                Calculated immediate as * using u=*,h=*                               | 
+ |                and branch target as **********                                       |
+ |             Operand Calculation:                                                     | 
+ |                Calculated operand(1) = *, operand(2) = *                             |
+ |             ---------------------------------------------------------------          | 
+ |        Execute:                                                                      |
+ |             Control Signals:                                                         |
+ |                Calculated opcode as * and respective signals:                        |
+ |                                                                                      |
+ |             ALU Unit:                                                                |
+ |                Performed required operation on A=*, B=* to get                       |
+ |                aluResult=*                                                           |
+ |             Branch Unit:                                                             |
+ |                Calculated Branch PC as ********** and isBranchTaken(*)               | 
+ |             ---------------------------------------------------------------          |
+ |        Memory:                                                                       |
+ |           No load/store to do                                                        | 
+ |           ---------------------------------------------------------------            |
+ |        Write Back:                                                                   |
+ |             Stored * intro x[*]                                                      |
+ |             ---------------------------------------------------------------          | 
+ |       Summary:                                                                       |
+ |           PC_COUNTER=***:     No.of cycles:                                          |
+ |             x0=**, x1(ra)=**, x2(sp)=** , x3=** to x31=**                            |
+                                                                                                                                                                       	+--------------------------------------------------------------------------------------+
+
+
+TEST RESULTS:
+-------------
+1. simple_add.asm
+    Calculates 4(x1)+12(x5)=16(x3).    
+    
+2. fibonacci.asm (Recursive)
+    Calculates nth [=3] fibonaaci number, i.e. 2 into x_
+    
+3. factorial.asm (Recursive)
+    Calculates factorial of 5, i.e. 120 into x3
+    
+4. bubblesort.asm (Recursive)
+    Sorts an array stored in memory
+    
+5. Loop.asm
+   Simple realization of loop
+
